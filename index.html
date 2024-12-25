@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ded Software</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body {
+            font-family: monospace;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 30vh;
+        }
+
+        p{
+            z-index: 1;
+            font-size: 24px;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <p>
+        Comming Soon...
+    </p>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // Enable shadow mapping
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 10, 7.5).normalize();
+        directionalLight.castShadow = true; // Enable shadows for the light
+        scene.add(directionalLight);
+
+        // Camera position
+        camera.position.z = 6;
+
+        // Load GLB model
+        const loader = new THREE.GLTFLoader();
+        loader.load('cubeee2.glb', function (gltf) {
+            const model = gltf.scene;
+            scene.add(model);
+
+            let rotationSpeed = { value: 0.001 }; // Initial rotation speed
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Rotate the model
+                model.rotation.x += rotationSpeed.value;
+                model.rotation.y += rotationSpeed.value;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Handle click events on navigation links
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    // Smoothly increase rotation speed
+                    gsap.to(rotationSpeed, { value: 0.2, duration: 0.5 });
+
+                    // Smoothly decrease rotation speed after 2 seconds
+                    setTimeout(() => {
+                        gsap.to(rotationSpeed, { value: 0.001, duration: 1 });
+                    }, 150);
+                });
+            });
+        }, undefined, function (error) {
+            console.error(error);
+        });
+
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
